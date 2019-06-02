@@ -1,0 +1,237 @@
+//The program will have 50 student and will input their grades base of what task.
+//Input the 9 raw grades for experiments. (with a raw grade of over 100)
+//Input the 9 raw grades for Skills tests. (with a raw grade of over 100)
+//Input the raw grades for the machine problems. (with a raw grade of over 100)
+//Then input the final examinations combined. (with a raw grade of over 100)
+//Then the program will give the results of students who passed and students who failed.
+//Then the program will give the transmuted grade of the students.
+//Finally the program will get the results of who got the highest or the top 10 students.
+
+#include <iostream>
+#include <array>
+#include <string>
+#include <algorithm>
+#include <conio.h>
+
+using namespace std;
+
+array<double, 50> getInput(unsigned int studentcount)
+{
+	array<double, 50> grades;
+	double experiments, skills, problems, exams, experiment[9], skill[9], problem[2];
+	string input;
+	for (int i = 0; i < studentcount; ++i)
+	{
+		experiments = 0;
+		skills = 0;
+		problems = 0;
+		cout << "Student number " << i + 1 << '\n';
+		cout << "Experiments (20%):\n";
+		for (int j = 0; j < 9; ++j)
+		{
+		exp:
+			cout << "\tExperiment " << j + 1 << ": ";
+			cin >> input;
+			try
+			{
+				experiment[j] = stod(input);
+			}
+			catch (exception& e)
+			{
+				cerr << e.what() << '\n';
+				goto exp;
+			}
+			experiments += experiment[j];
+		}
+		experiments /= 9;
+		cout << "Skills Test (20%):\n";
+		for (int j = 0; j < 9; ++j)
+		{
+		skl:
+			cout << "\tSkills Test " << j + 1 << ": ";
+			cin >> input;
+			try
+			{
+				skill[j] = stod(input);
+			}
+			catch (exception& e)
+			{
+				cerr << e.what() << '\n';
+				goto skl;
+			}
+			skills += skill[j];
+		}
+		skills /= 9;
+		cout << "Machine Problems (20%):\n";
+		for (int j = 0; j < 2; ++j)
+		{
+		prob:
+			cout << "\tMachine Problem " << j + 1 << ": ";
+			cin >> input;
+			try
+			{
+				problem[j] = stod(input);
+			}
+			catch (exception& e)
+			{
+				cerr << e.what() << '\n';
+				goto prob;
+			}
+			problems += problem[j];
+		}
+		problems /= 2;
+	exm:
+		cout << "Major Exams (40%): ";
+		cin >> input;
+		try
+		{
+			exams = stod(input);
+		}
+		catch (exception& e)
+		{
+			cerr << e.what() << '\n';
+			goto exm;
+		}
+		grades[i] = (experiments * 0.2 + skills * 0.2 + problems * 0.2 + exams * 0.4);
+		cout << '\n';
+	}
+	return grades;
+}
+
+array<bool, 50> eval(array<double, 50> & grades)
+{
+	array<bool, 50> out;
+	for (int i = 0; i < grades.size(); ++i)
+	{
+		out[i] = (grades[i] >= 60);
+	}
+	return out;
+}
+
+void showResult(array<bool, 50> & pass)
+{
+	for (unsigned int i = 0; i < pass.size(); ++i)
+	{
+		cout << "Student " << i + 1 << ": " << (pass[i] ? "Passed" : "Failed") << '\n';
+	}
+}
+
+array<int, 10> top10(array<double, 50> grades)
+{
+	int num = grades.size() > 10 ? 10 : grades.size();
+	int count = 0;
+	int max, index;
+	array<int, 10> indices;
+	for (int j = 0; j < num; ++j)
+	{
+		max = -1;
+		for (int i = 0; i < grades.size(); ++i)
+		{
+			if (grades[i] > max)
+			{
+				index = i;
+				max = grades[i];
+			}
+		}
+		indices[count++] = index;
+		grades[index] = -1;
+	}
+	while (count < 10)
+	{
+		indices[count++] = -1;
+	}
+	return indices;
+}
+
+array<double, 50> transmute(array<double, 50> grades)
+{
+	array<double, 50> gwa;
+	for (int i = 0; i < grades.size(); ++i)
+	{
+		if (grades[i] < 60)
+		{
+			gwa[i] = 5;
+		}
+		else if (grades[i] <= 64.44)
+		{
+			gwa[i] = 3;
+		}
+		else if (grades[i] <= 68.89)
+		{
+			gwa[i] = 2.75;
+		}
+		else if (grades[i] <= 73.33)
+		{
+			gwa[i] = 2.5;
+		}
+		else if (grades[i] <= 77.78)
+		{
+			gwa[i] = 2.25;
+		}
+		else if (grades[i] <= 82.22)
+		{
+			gwa[i] = 2;
+		}
+		else if (grades[i] <= 86.67)
+		{
+			gwa[i] = 1.75;
+		}
+		else if (grades[i] <= 91.11)
+		{
+			gwa[i] = 1.5;
+		}
+		else if (grades[i] <= 95.56)
+		{
+			gwa[i] = 1.25;
+		}
+		else
+		{
+			gwa[i] = 1;
+		}
+	}
+	return gwa;
+}
+
+void showTop10(array<int, 10> students, array<double, 50> grades)
+{
+	for (auto i = 0; i < students.size(); ++i)
+	{
+		if (students[i] != -1)
+		{
+			cout << i + 1 << ": Student " << students[i] + 1 << ": " << grades[students[i]] << '\n';
+		}
+	}
+}
+
+void showTransmuted(array<double, 50>& score)
+{
+	cout << "Transmuted scores:\n";
+	for (int i = 0; i < 50; ++i)
+	{
+		cout << "Student " << i + 1 << ": " << score[i] << '\n';
+	}
+}
+
+int main()
+{
+	//get grades
+	array<double, 50> grades = getInput(50);
+	cout << '\n';
+
+	//determine pass or fail
+	array<bool, 50> pass = eval(grades);
+	showResult(pass);
+	cout << '\n';
+
+	//get transmuted
+	array<double, 50> transmuted = transmute(grades);
+	showTransmuted(transmuted);
+
+	//determine top 10 students
+	array<int, 10> top10students = top10(grades);
+	cout << "top 10 Students: \n";
+	showTop10(top10students, grades);
+
+	_getch();
+	return 0;
+}
