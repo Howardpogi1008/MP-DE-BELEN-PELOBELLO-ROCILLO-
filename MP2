@@ -1,0 +1,190 @@
+//You should input first the length of the side of the triangles.
+//then the program or code will give you the result.
+//the 1st result is the interior angles.
+//the 2nd is the type of triangle according to sides.
+//the 3rd is the area of the triangle.
+//the 4th is the perimeter.
+//the 5th is the type of triangle according to angles.
+//the 6th is the length of apothem.
+//lastly the length of circumcenter.
+
+#include <iostream>
+#include <array>
+#include <string>
+#include <cmath>
+#include <conio.h>
+
+//pi is needed in the solution so we put pi.
+#define PI 3.141592653589793238462643383
+
+using namespace std;
+
+array<double, 3> getSides()
+{
+	array<double, 3> sides;
+	double side;
+	string input;
+	//knowing the sides of the triangles if they exists or not
+begin:
+side1:
+	cout << "Enter the length of a side: ";
+	cin >> input;
+	try
+	{
+		side = stod(input);
+		if (side <= 0)
+		{
+			cerr << "length must be greater than 0\nplease try again\n";
+			goto side1;
+		}
+		sides[0] = side;
+	}
+	catch (exception& e)
+	{
+		cerr << e.what() << '\n';
+		goto side1;
+	}
+side2:
+	cout << "Enter the length of a side: ";
+	cin >> input;
+	try
+	{
+		side = stod(input);
+		if (side <= 0)
+		{
+			cerr << "length must be greater than 0\nplease try again\n";
+			goto side2;
+		}
+		sides[1] = side;
+	}
+	catch (exception& e)
+	{
+		cerr << e.what() << '\n';
+		goto side2;
+	}
+side3:
+	cout << "Enter the length of a side: ";
+	cin >> input;
+	try
+	{
+		side = stod(input);
+		if (side <= 0)
+		{
+			cerr << "length must be greater than 0\nplease try again\n";
+			goto side3;
+		}
+		sides[2] = side;
+	}
+	catch (exception& e)
+	{
+		cerr << e.what() << '\n';
+		goto side3;
+	}
+	if (sides[0] >= sides[1] + sides[2] || sides[1] >= sides[0] + sides[2] || sides[2] >= sides[0] + sides[1])
+	{
+		cerr << "Sides don't make a valid triangle\nPlease try again\n";
+		goto begin;
+	}
+	return sides;
+}
+// The formula of the triangles.
+array<double, 3> getAngles(array<double, 3> & sides)
+{
+	array<double, 3> angles;
+	angles[0] = acos((sides[1] * sides[1] + sides[2] * sides[2] - sides[0] * sides[0]) / (2 * sides[2] * sides[1]));
+	angles[1] = acos((sides[2] * sides[2] + sides[0] * sides[0] - sides[1] * sides[1]) / (2 * sides[2] * sides[0]));
+	angles[2] = acos((sides[0] * sides[0] + sides[1] * sides[1] - sides[2] * sides[2]) / (2 * sides[1] * sides[0]));
+	return angles;
+}
+
+// to know the type of triangle.
+string lengthType(array<double, 3> & sides)
+{
+	if (sides[0] == sides[1] && sides[0] == sides[2])
+		return "equilateral";
+	if (sides[0] == sides[1] || sides[0] == sides[2] || sides[1] == sides[2])
+		return "isosceles";
+	return "scalene";
+}
+//to find the perimeter.
+double getPerimeter(array<double, 3> & sides)
+{
+	return sides[0] + sides[1] + sides[2];
+}
+
+double getArea(array<double, 3> & sides, double perimeter = 0)
+{
+	if (perimeter == 0)
+		perimeter = getPerimeter(sides);
+	double p = perimeter / 2;
+	return sqrt(p * (p - sides[0]) * (p - sides[1]) * (p - sides[2]));
+}
+//to know what kind of angle.
+string angleType(array<double, 3> & angles)
+{
+	for (auto it = angles.begin(); it < angles.end(); ++it)
+	{
+		if (*it == PI / 2)
+			return "right";
+		if (*it > PI / 2)
+			return "obtuse";
+	}
+	return "acute";
+}
+
+double getApothem(array<double, 3> & sides, array<double, 3> & angles, double perimeter = 0.0, double area = 0.0, string ltype = "")
+{
+	if (perimeter == 0)
+		perimeter = getPerimeter(sides);
+	if (area == 0)
+		area = getArea(sides, perimeter);
+	if (ltype == "")
+	{
+		ltype = lengthType(sides);
+	}
+	if (ltype != "equilateral")
+		return -1;
+	if (angles[0] != angles[1] || angles[0] != angles[2])
+		return -1;
+	return 2 * area / perimeter;
+}
+
+double getCircumcenter(array<double, 3> & sides, array<double, 3> & angles)
+{
+	double x = sides[0] / 2;
+	double old_m = std::tan(angles[2]);
+	double old_x = sides[1] / 2 * std::cos(angles[2]);
+	double old_y = old_m * old_x;
+	double new_m = -1 / old_m;
+	double new_b = old_y - new_m * old_x;
+	double y = new_m * x + new_b;
+	return std::sqrt(x * x + y * y);
+}
+
+int main()
+{
+	array<double, 3> sides = getSides();
+	array<double, 3> angles = getAngles(sides);
+	string len_type = lengthType(sides);
+	string angle_type = angleType(angles);
+	double perimeter = getPerimeter(sides);
+	double area = getArea(sides, perimeter);
+	double apothem = getApothem(sides, angles, perimeter, area, len_type);
+	double circumcenter = getCircumcenter(sides, angles);
+
+	cout << "\ninterior angles: \n";
+	for (auto i = 0; i < angles.size(); ++i)
+		cout << angles[i] * 180 / PI << "°\n";
+	cout << "type of triangle according to sides: " << len_type << '\n';
+	cout << "area: " << area << "\nperimeter: " << perimeter << '\n';
+	cout << "type of triangle according to angles: " << angle_type << '\n';
+	cout << "length of apothem: ";
+	if (apothem > 0)
+		cout << apothem << '\n';
+	else
+		cout << "no apothem, only in regular triangles\n";
+	cout << "length of circumcenter: " << circumcenter;
+
+	_getch();
+	return 0;
+}
